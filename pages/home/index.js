@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/client";
 import io from 'socket.io-client'
-
+const socketEndpoint = process.env.SOCKET_URL;
 
 export async function getServerSideProps(req, res) {
   const session = await getSession(req);
@@ -15,21 +15,23 @@ export async function getServerSideProps(req, res) {
   }
 
   const myUser = session.user.name;
-
-  const socket = io("http://localhost:3001");
+  console.log(socketEndpoint)
+  const socket = io(socketEndpoint);
   socket.emit('joined', myUser)
   socket.on('actionResp', user => {
     console.log("SOCKET MESSAGE RECEIVED");
   });
   return {
     props: {
-      username: myUser
+      username: myUser,
+      socketURL: socketEndpoint
     },
   };
 }
 
-export default function Home({ username }) {
-  const socket = io("http://127.0.0.1:3001");
+export default function Home({ username,socketURL }) {
+  console.log(socketURL);
+  const socket = io(socketURL);
   
   const handleClick = (id) => {
     console.log("TESTCLICK");
