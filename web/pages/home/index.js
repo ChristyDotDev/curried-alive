@@ -1,8 +1,10 @@
 import { getSession } from "next-auth/client";
+import io from 'socket.io-client'
+
 
 export async function getServerSideProps(req, res) {
   const session = await getSession(req);
-
+  
   if (!session?.user) {
     return {
       redirect: {
@@ -13,6 +15,9 @@ export async function getServerSideProps(req, res) {
   }
 
   const myUser = session.user.name;
+
+  const socket = io("http://localhost:3001");
+  socket.emit('joined', myUser)
   return {
     props: {
       username: myUser
