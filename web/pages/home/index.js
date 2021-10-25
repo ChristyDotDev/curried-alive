@@ -26,12 +26,20 @@ export async function getServerSideProps(req, res) {
 }
 
 export default function Home({ username }) {
+  const socket = io("http://127.0.0.1:3001");
+  
+  const handleClick = (id) => {
+    console.log("TESTCLICK");
+    socket.emit('action', username)
+  };
+
   return (
     <div>
       <main>
         <h1>Welcome {username}</h1>
         <p>Enter your game ID as shown on the game screen</p>
         <p>Or host a new game</p>
+        <a onClick={() => handleClick()}>Test</a>
       </main>
     </div>
   );
