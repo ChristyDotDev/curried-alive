@@ -1,9 +1,17 @@
 import { getSession } from "next-auth/client";
 import io from 'socket.io-client'
+import { Input } from "@chakra-ui/react"
+import { Stack, Text } from "@chakra-ui/layout"
+import { InputLeftElement, InputGroup,InputRightElement } from "@chakra-ui/input"
+import { ArrowForwardIcon, CheckIcon } from "@chakra-ui/icons";
+import { Button } from "@chakra-ui/button";
+import { useRouter } from "next/router";
+
 const socketEndpoint = process.env.SOCKET_URL;
 
-export async function getServerSideProps(req, res) {
+export async function getServerSideProps(req, res, context) {
   const session = await getSession(req);
+  
   
   if (!session?.user) {
     return {
@@ -17,26 +25,21 @@ export async function getServerSideProps(req, res) {
   const myUser = session.user.name;
   console.log(socketEndpoint)
   const socket = io(socketEndpoint);
-  socket.emit('joined', myUser)
-  socket.on('actionResp', user => {
-    console.log("SOCKET MESSAGE RECEIVED");
-  });
   return {
     props: {
-      username: myUser,
       socketURL: socketEndpoint
     },
   };
 }
 
-export default function Home({ username,socketURL }) {
-  console.log(socketURL);
+export default function Home({ socketURL }) {
   const socket = io(socketURL);
+  const router = useRouter();
   
-  const handleClick = (id) => {
-    console.log("TESTCLICK");
-    socket.emit('action', username);
-    socket.emit('createGame', 1234);
+  const handleNewGameClick = () => {
+    const gameId = Math.random().toString(16).substr(2, 4)
+    socket.emit('createGame', gameId);
+    router.push(`/lobby/${gameId}`);
   };
 
   socket.on('joinedGame', gameId => {
@@ -46,10 +49,22 @@ export default function Home({ username,socketURL }) {
   return (
     <div>
       <main>
-        <h1>Welcome {username}</h1>
-        <p>Enter your game ID as shown on the game screen</p>
-        <p>Or host a new game</p>
-        <a onClick={() => handleClick()}>CREATE GAME</a>
+        <Stack spacing={4}>
+
+          <InputGroup>
+            <InputLeftElement
+              pointerEvents="none"
+              children={<ArrowForwardIcon color="gray.300" />}
+            />
+            <Input placeholder="Enter the Lobby ID as shown on the host's screen" />
+            <Button>Join Game</Button>
+          </InputGroup>
+
+          <InputGroup>
+            <Text>Or if you want to host a game: </Text>
+            <Button onClick={() => handleNewGameClick()}>Create a New Lobby</Button>
+          </InputGroup>
+        </Stack>
       </main>
     </div>
   );
