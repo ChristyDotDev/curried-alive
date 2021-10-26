@@ -1,12 +1,12 @@
 import { getSession } from "next-auth/client";
 import io from 'socket.io-client'
 import { Stack, Text } from "@chakra-ui/layout"
+import Board from "../../components/Board";
 
 const socketEndpoint = process.env.SOCKET_URL;
 
 export async function getServerSideProps(req, res) {
   const session = await getSession(req);
-  console.log(req)
   const lobbyId = req.params.id;
   
   if (!session?.user) {
@@ -30,7 +30,6 @@ export async function getServerSideProps(req, res) {
 
 export default function Home({ username, socketURL, lobbyId }) {
   const socket = io(socketURL);
-  
   socket.emit('joinGame', lobbyId);
   socket.on('joinedGame', gameId => {
     console.log('Joined game: ', gameId);
@@ -42,6 +41,7 @@ export default function Home({ username, socketURL, lobbyId }) {
         <Stack spacing={4}>
             <Text>Lobby ID: {lobbyId}</Text>
             <Text>Username: {username}</Text>
+            <Board />
         </Stack>
       </main>
     </div>

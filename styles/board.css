@@ -1,0 +1,32 @@
+wb-container {
+    height:200px;
+    width:200px;
+    outline: 1px red solid;
+}
+
+wb-container * {
+    box-sizing: border-box;
+}
+  
+wb-container.whiteboard {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    
+}
+  
+  wb-container.colors {
+    position: fixed;
+  }
+  
+  wb-container.color {
+    display: inline-block;
+    height: 48px;
+    width: 48px;
+  }
+  
+  wb-container.color.black { background-color: black; }
+  wb-container.color.red { background-color: red; }
+  wb-container.color.green { background-color: green; }
+  wb-container.color.blue { background-color: blue; }
+  wb-container.color.yellow { background-color: yellow; }
