@@ -6,13 +6,12 @@ import { InputLeftElement, InputGroup,InputRightElement } from "@chakra-ui/input
 import { ArrowForwardIcon, CheckIcon } from "@chakra-ui/icons";
 import { Button } from "@chakra-ui/button";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
 
 const socketEndpoint = process.env.SOCKET_URL;
 
-export async function getServerSideProps(req, res, context) {
+export async function getServerSideProps(req, res) {
   const session = await getSession(req);
-  
-  
   if (!session?.user) {
     return {
       redirect: {
@@ -21,10 +20,6 @@ export async function getServerSideProps(req, res, context) {
       },
     };
   }
-
-  const myUser = session.user.name;
-  console.log(socketEndpoint)
-  const socket = io(socketEndpoint);
   return {
     props: {
       socketURL: socketEndpoint
@@ -35,6 +30,11 @@ export async function getServerSideProps(req, res, context) {
 export default function Home({ socketURL }) {
   const socket = io(socketURL);
   const router = useRouter();
+  const [joinLobbyId, setJoinLobbyId] = useState("");
+
+  const updateJoinLobbyId = e => {
+    setJoinLobbyId(e.target.value);
+  };
   
   const handleNewGameClick = () => {
     const gameId = Math.random().toString(16).substr(2, 4)
@@ -42,9 +42,11 @@ export default function Home({ socketURL }) {
     router.push(`/lobby/${gameId}`);
   };
 
-  socket.on('joinedGame', gameId => {
-    console.log('Joined game: ', gameId);
-  });
+  const handleJoinLobbySubmit = () => {
+    if(joinLobbyId){
+      router.push(`/lobby/${joinLobbyId}`);
+    }
+  };
 
   return (
     <div>
@@ -56,8 +58,8 @@ export default function Home({ socketURL }) {
               pointerEvents="none"
               children={<ArrowForwardIcon color="gray.300" />}
             />
-            <Input placeholder="Enter the Lobby ID as shown on the host's screen" />
-            <Button>Join Game</Button>
+            <Input onChange={updateJoinLobbyId} placeholder="Enter the Lobby ID as shown on the host's screen" />
+            <Button onClick={() => handleJoinLobbySubmit()}>Join Game</Button>
           </InputGroup>
 
           <InputGroup>
