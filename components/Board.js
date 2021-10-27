@@ -67,8 +67,20 @@ const Board = () => {
       current.y = e.clientY || e.touches[0].clientY;
     };
 
+    const getCorrectedPoint = (id, e) => {
+      var target = document.getElementById(id);
+      return {'left':e.clientX-(target.offsetLeft || 0),'top':e.clientY-(target.offsetTop || 0)};
+      
+  }
+
     const onMouseMove = (e) => {
       if (!drawing) { return; }
+      const point = getCorrectedPoint("whiteboard-canvas", e)
+      console.log("Corrected X: " + point.left + ", Y: " + point.top);
+      console.log("Actual X: " + (e.clientX) + ", Y: " + (e.clientY));
+      //console.log();
+      //console.log(getPoint("whiteboard-canvas").top);
+      
       drawLine(current.x, current.y, e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
       current.x = e.clientX || e.touches[0].clientX;
       current.y = e.clientY || e.touches[0].clientY;
@@ -113,7 +125,7 @@ const Board = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-
+    
     window.addEventListener('resize', onResize, false);
     onResize();
 
@@ -132,7 +144,7 @@ const Board = () => {
 
   return (
     <div class='wb-container'>
-      <canvas ref={canvasRef} className="whiteboard" />
+      <canvas ref={canvasRef} className="whiteboard" id="whiteboard-canvas" />
 
       <div ref={colorsRef} className="colors">
         <div className="color black" />
