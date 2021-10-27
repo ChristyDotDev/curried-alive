@@ -41,7 +41,7 @@ export default function Home({ username, socketURL, lobbyId }) {
         <Stack spacing={4}>
             <Text>Lobby ID: {lobbyId}</Text>
             <Text>Username: {username}</Text>
-            <Board room={lobbyId} />
+            <Board room={lobbyId} socketURL={socketURL}/>
         </Stack>
       </main>
     </div>

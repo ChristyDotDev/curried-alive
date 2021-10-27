@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 const Board = (props) => {
   const canvasRef = useRef(null);
   const colorsRef = useRef(null);
-  const socketRef = useRef();
+  const socketRef = useRef(io.connect(props.socketURL));
   const room = useRef(props.room);
 
   useEffect(() => {
@@ -139,7 +139,6 @@ const Board = (props) => {
       drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
     }
 
-    socketRef.current = io.connect('http://localhost:3001');
     socketRef.current.emit('joinGame', room.current);
     socketRef.current.on('drawing', onDrawingEvent);
   }, []);
