@@ -1,7 +1,11 @@
 .whiteboard {
   height: 100%;
   width: 100%;
+  background-color: wheat;
+}
 
+.wb-container {
+    
 }
 
 .color {

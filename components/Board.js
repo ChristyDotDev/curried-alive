@@ -1,24 +1,22 @@
 import React, { useRef, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const Board = () => {
+const Board = (props) => {
   const canvasRef = useRef(null);
   const colorsRef = useRef(null);
   const socketRef = useRef();
+  const room = useRef(props.room);
 
   useEffect(() => {
 
     // --------------- getContext() method returns a drawing context on the canvas-----
 
     const canvas = canvasRef.current;
-    const test = colorsRef.current;
     const context = canvas.getContext('2d');
 
     // ----------------------- Colors --------------------------------------------------
 
     const colors = document.getElementsByClassName('color');
-    console.log(colors, 'the colors');
-    console.log(test);
     // set the current color
     const current = {
       color: 'black',
@@ -51,6 +49,7 @@ const Board = () => {
       const h = canvas.height;
 
       socketRef.current.emit('drawing', {
+        room: room.current,
         x0: x0 / w,
         y0: y0 / h,
         x1: x1 / w,
@@ -83,11 +82,6 @@ const Board = () => {
     const onMouseMove = (e) => {
       if (!drawing) { return; }
       const point = getCorrectedPoint("whiteboard-canvas", e)
-      console.log("Corrected X: " + point.x + ", Y: " + point.y);
-      console.log("Actual X: " + (e.clientX) + ", Y: " + (e.clientY));
-      //console.log();
-      //console.log(getPoint("whiteboard-canvas").top);
-      
       drawLine(current.x, current.y, point.x, point.y, current.color, true);
       current.x = point.x;
       current.y = point.y;
@@ -139,12 +133,14 @@ const Board = () => {
 
     // ----------------------- socket.io connection ----------------------------
     const onDrawingEvent = (data) => {
+      console.log("drawing event received");
       const w = canvas.width;
       const h = canvas.height;
       drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
     }
 
-    socketRef.current = io.connect('/');
+    socketRef.current = io.connect('http://localhost:3001');
+    socketRef.current.emit('joinGame', room.current);
     socketRef.current.on('drawing', onDrawingEvent);
   }, []);
 
