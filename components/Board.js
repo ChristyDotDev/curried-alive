@@ -63,33 +63,41 @@ const Board = () => {
 
     const onMouseDown = (e) => {
       drawing = true;
-      current.x = e.clientX || e.touches[0].clientX;
-      current.y = e.clientY || e.touches[0].clientY;
+      const point = getCorrectedPoint("whiteboard-canvas", e)
+      current.x = point.x;
+      current.y = point.y;
     };
 
     const getCorrectedPoint = (id, e) => {
+      var doc = document.documentElement;
+      var scrollX = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+      var scrollY = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+
       var target = document.getElementById(id);
-      return {'left':e.clientX-(target.offsetLeft || 0),'top':e.clientY-(target.offsetTop || 0)};
+      const originalX = e.clientX || e.touches && e.touches[0].clientX;
+      const originalY = e.clientY || e.touches && e.touches[0].clientY;
+      return {'x':originalX-(target.offsetLeft || 0) + scrollX,'y':originalY-(target.offsetTop || 0) + scrollY};
       
   }
 
     const onMouseMove = (e) => {
       if (!drawing) { return; }
       const point = getCorrectedPoint("whiteboard-canvas", e)
-      console.log("Corrected X: " + point.left + ", Y: " + point.top);
+      console.log("Corrected X: " + point.x + ", Y: " + point.y);
       console.log("Actual X: " + (e.clientX) + ", Y: " + (e.clientY));
       //console.log();
       //console.log(getPoint("whiteboard-canvas").top);
       
-      drawLine(current.x, current.y, e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
-      current.x = e.clientX || e.touches[0].clientX;
-      current.y = e.clientY || e.touches[0].clientY;
+      drawLine(current.x, current.y, point.x, point.y, current.color, true);
+      current.x = point.x;
+      current.y = point.y;
     };
 
     const onMouseUp = (e) => {
       if (!drawing) { return; }
       drawing = false;
-      drawLine(current.x, current.y, e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
+      const point = getCorrectedPoint("whiteboard-canvas", e)
+      drawLine(current.x, current.y, point.x, point.y, current.color, true);
     };
 
     // ----------- limit the number of events per second -----------------------
